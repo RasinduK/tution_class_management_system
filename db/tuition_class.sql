@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 07, 2024 at 02:47 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Generation Time: Aug 07, 2024 at 10:29 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -70,6 +70,28 @@ INSERT INTO `attendance` (`id`, `date`, `student_id`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `payment_date` date NOT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `payment_month` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payments`
+--
+
+INSERT INTO `payments` (`id`, `student_id`, `amount`, `payment_date`, `payment_method`, `payment_month`) VALUES
+(7, 3, 5000.00, '2024-08-12', 'Bank Transfer', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `students`
 --
 
@@ -125,7 +147,8 @@ INSERT INTO `users` (`id`, `username`, `password`) VALUES
 (1, '1111', '$2y$10$cN4QsOYrZHjqy0vK9PWU4.EyQHe3HowyERrIZpYHDpwvDA6vY.f6y'),
 (2, '123', '$2y$10$VFo2YI6SIrs3bCoqPUPU7eGBTWH0mJU05TMmgOs9QjswhoENfjEDK'),
 (3, '254', '$2y$10$gpaioX64R0O8pdBwk3cOJOg1.0v1M8gmf0hPNjIJ31UZrMS7eJ5Ey'),
-(4, '1234', '$2y$10$sq9cDhT0TV/Dm.E3NE60VuOXQECjM1GBXhzt8/9GJ/aXjgNGsAqtu');
+(4, '1234', '$2y$10$sq9cDhT0TV/Dm.E3NE60VuOXQECjM1GBXhzt8/9GJ/aXjgNGsAqtu'),
+(5, '7894', '$2y$10$G03PDaKsGhghMRaDSSSX6e8cm6JH9xCnN0ECrlvcZ.sSrig6KIxiq');
 
 --
 -- Indexes for dumped tables
@@ -135,6 +158,13 @@ INSERT INTO `users` (`id`, `username`, `password`) VALUES
 -- Indexes for table `attendance`
 --
 ALTER TABLE `attendance`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`);
+
+--
+-- Indexes for table `payments`
+--
+ALTER TABLE `payments`
   ADD PRIMARY KEY (`id`),
   ADD KEY `student_id` (`student_id`);
 
@@ -161,6 +191,12 @@ ALTER TABLE `attendance`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
@@ -170,7 +206,7 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
@@ -181,6 +217,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `attendance`
   ADD CONSTRAINT `attendance_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`);
+
+--
+-- Constraints for table `payments`
+--
+ALTER TABLE `payments`
+  ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

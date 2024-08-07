@@ -103,8 +103,8 @@ $conn->close();
         <a href="dashboard.php">Home</a>
         <a href="student.php">Student</a>
         <a href="attendnce.php">Attendnce</a>
-        <!--<a href="Payment.php">Payment</a>
-        <a href="study_material.php">Study Material</a>
+        <a href="Payment.php">Payment</a>
+       <!--<a href="study_material.php">Study Material</a>
         <a href="exam.php">Exam</a>
         <a href="result.php">Result</a>-->
         <a href="dashboard.php" class="logout-button">Exit</a>
