@@ -106,14 +106,16 @@ require_once "connection.php";
         }
 
         var paymentDetails = {
-            id: paymentRow.querySelector('.id').textContent,
-            studentId: paymentRow.querySelector('.student-id').textContent,
-            studentName: paymentRow.querySelector('.student-name').textContent,
-            amount: paymentRow.querySelector('.amount').textContent,
-            paymentDate: paymentRow.querySelector('.payment-date').textContent,
-            paymentMethod: paymentRow.querySelector('.payment-method').textContent,
-            paymentMonth: paymentRow.querySelector('.payment-month').textContent
+            id: paymentRow.querySelector('.id').textContent.trim(),
+            studentId: paymentRow.querySelector('.student-id').textContent.trim(),
+            studentName: paymentRow.querySelector('.student-name').textContent.trim(),
+            amount: paymentRow.querySelector('.amount').textContent.trim(),
+            paymentDate: paymentRow.querySelector('.payment-date').textContent.trim(),
+            paymentMethod: paymentRow.querySelector('.payment-method').textContent.trim(),
+            paymentMonth: paymentRow.querySelector('.payment-month').textContent.trim()
         };
+
+        console.log(paymentDetails); // Debugging line to check what is being captured
 
         var printWindow = window.open('', '_blank');
         printWindow.document.write('<html><head><title>Print Payment</title>');
@@ -146,6 +148,7 @@ require_once "connection.php";
         printWindow.print();
     }
 </script>
+
 
 </body>
 </html>

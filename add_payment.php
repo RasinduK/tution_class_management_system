@@ -11,7 +11,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 require_once "connection.php";
 
 // Define variables and initialize with empty values
-$student_id = $amount = $payment_date = $payment_method = "";
+$student_id = $amount = $payment_date = $payment_method = $payment_month = "";
 $student_id_err = $amount_err = $payment_date_err = $payment_method_err = "";
 
 // Processing form data when form is submitted
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate amount
     if (empty(trim($_POST["amount"]))) {
         $amount_err = "Please enter the amount.";
-    } elseif (!ctype_digit($_POST["amount"])) {
+    } elseif (!is_numeric($_POST["amount"])) {
         $amount_err = "Please enter a valid amount.";
     } else {
         $amount = trim($_POST["amount"]);
@@ -46,20 +46,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $payment_method = trim($_POST["payment_method"]);
     }
 
+    // Validate payment month
+    if (empty(trim($_POST["payment_month"]))) {
+        $payment_month = ""; // Optional field
+    } else {
+        $payment_month = trim($_POST["payment_month"]);
+    }
+
     // Check input errors before inserting in database
     if (empty($student_id_err) && empty($amount_err) && empty($payment_date_err) && empty($payment_method_err)) {
         // Prepare an insert statement
-        $sql = "INSERT INTO payments (student_id, amount, payment_date, payment_method) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO payments (student_id, amount, payment_date, payment_method, payment_month) VALUES (?, ?, ?, ?, ?)";
 
         if ($stmt = $conn->prepare($sql)) {
             // Bind variables to the prepared statement as parameters
-            $stmt->bind_param("iiss", $param_student_id, $param_amount, $param_payment_date, $param_payment_method);
+            $stmt->bind_param("iisss", $param_student_id, $param_amount, $param_payment_date, $param_payment_method, $param_payment_month);
 
             // Set parameters
             $param_student_id = $student_id;
             $param_amount = $amount;
             $param_payment_date = $payment_date;
             $param_payment_method = $payment_method;
+            $param_payment_month = $payment_month;
 
             // Attempt to execute the prepared statement
             if ($stmt->execute()) {
@@ -68,11 +76,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             } else {
                 echo "Something went wrong. Please try again later.";
+                // Debugging
+                echo "<pre>";
+                print_r($stmt->error_list);
+                echo "</pre>";
             }
-        }
 
-        // Close statement
-        $stmt->close();
+            // Close statement
+            $stmt->close();
+        }
     }
 
     // Close connection
@@ -115,10 +127,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <span class="invalid-feedback"><?php echo $student_id_err; ?></span>
         </div>
         <div class="form-group">
-            <label>Student Name</label>
-            <input type="text" id="student_name" class="form-control" readonly>
-        </div>
-        <div class="form-group">
             <label>Amount</label>
             <input type="text" name="amount" class="form-control <?php echo (!empty($amount_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $amount; ?>">
             <span class="invalid-feedback"><?php echo $amount_err; ?></span>
@@ -132,15 +140,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label>Payment Method</label>
             <select name="payment_method" class="form-control <?php echo (!empty($payment_method_err)) ? 'is-invalid' : ''; ?>">
                 <option value="">Select a payment method</option>
-                <option value="Cash">Cash</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cash" <?php echo ($payment_method == "Cash") ? 'selected' : ''; ?>>Cash</option>
+                <option value="Credit Card" <?php echo ($payment_method == "Credit Card") ? 'selected' : ''; ?>>Credit Card</option>
+                <option value="Bank Transfer" <?php echo ($payment_method == "Bank Transfer") ? 'selected' : ''; ?>>Bank Transfer</option>
             </select>
             <span class="invalid-feedback"><?php echo $payment_method_err; ?></span>
         </div>
         <div class="form-group">
             <label>Payment Month</label>
-            <input type="month" name="payment_month" class="form-control" value="<?php echo $payment_month; ?>">
+            <input type="date" name="payment_month" class="form-control" value="<?php echo $payment_month; ?>">
         </div>
         <div class="form-group">
             <input type="submit" class="btn btn-primary" value="Submit">
@@ -157,7 +165,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $.ajax({
                     type: 'POST',
                     url: 'fetch_student_name.php',
-                    data: 'student_id=' + student_id,
+                    data: { student_id: student_id },
                     success: function(response) {
                         $('#student_name').val(response);
                     }

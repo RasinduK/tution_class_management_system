@@ -11,18 +11,18 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 require_once "connection.php";
 
 // Define variables and initialize with empty values
-$month = $batch = "";
-$month_err = $batch_err = "";
+$date = $batch = "";
+$date_err = $batch_err = "";
 $attendance_records = [];
 
 // Processing form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Validate month
-    if(empty(trim($_POST["month"]))){
-        $month_err = "Please select a month.";
+    // Validate date
+    if(empty(trim($_POST["date"]))){
+        $date_err = "Please select a date.";
     } else{
-        $month = trim($_POST["month"]);
+        $date = trim($_POST["date"]);
     }
 
     // Validate batch
@@ -33,13 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Get attendance records if there are no errors
-    if (empty($month_err) && empty($batch_err)) {
+    if (empty($date_err) && empty($batch_err)) {
         $sql = "SELECT students.full_name, attendance.date, attendance.status 
                 FROM attendance 
                 JOIN students ON attendance.student_id = students.id 
-                WHERE students.batch = ? AND DATE_FORMAT(attendance.date, '%Y-%m') = ?";
+                WHERE students.batch = ? AND attendance.date = ?";
         if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ss", $batch, $month);
+            $stmt->bind_param("ss", $batch, $date);
             if ($stmt->execute()) {
                 $result = $stmt->get_result();
                 while ($row = $result->fetch_assoc()) {
@@ -66,11 +66,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>View Attendance</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<div class="navbar">
+<body>
+    <div class="navbar">
         <a href="dashboard.php">Home</a>
         <a href="student.php">Student</a>
-        <a href="attendnce.php">Attendnce</a>
-        <a href="Payment.php">Payment</a>
+        <a href="attendnce.php">Attendance</a>
+        <a href="payment.php">Payment</a>
         <!--<a href="study_material.php">Study Material</a>
         <a href="exam.php">Exam</a>
         <a href="result.php">Result</a>-->
@@ -79,9 +80,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div>
         <h2>View Attendance</h2>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <label>Select Month</label>
-            <input type="month" name="month" value="<?php echo $month; ?>" required>
-            <span class="error"><?php echo $month_err; ?></span><br>
+            <label>Select Date</label>
+            <input type="date" name="date" value="<?php echo htmlspecialchars($date); ?>" required>
+            <span class="error"><?php echo $date_err; ?></span><br>
 
             <label>Select Batch</label>
             <select name="batch" required>
@@ -96,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="submit" value="View Attendance">
         </form>
         <?php if (!empty($attendance_records)): ?>
-            <h3>Attendance Records for <?php echo $batch; ?> Batch in <?php echo date("F Y", strtotime($month . "-01")); ?></h3>
+            <h3>Attendance Records for <?php echo $batch; ?> Batch on <?php echo htmlspecialchars(date("F j, Y", strtotime($date))); ?></h3>
             <table>
                 <thead>
                     <tr>
